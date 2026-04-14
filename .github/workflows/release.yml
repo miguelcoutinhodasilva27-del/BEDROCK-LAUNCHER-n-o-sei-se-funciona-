@@ -1,0 +1,29 @@
+name: Criar Release Automática
+
+on:
+  push:
+    tags:
+      - 'v*' # Dispara quando você cria uma tag começando com 'v' (ex: v1.0)
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Baixando o código
+      uses: actions/checkout@v3
+
+    - name: Configurando o .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Compilando o Launcher (.exe)
+      run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish
+
+    - name: Criando a Release no GitHub
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./publish/*.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
